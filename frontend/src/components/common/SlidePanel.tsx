@@ -76,8 +76,8 @@ export default function SlidePanel({
             className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-chart-1/30 transition"
           />
         )}
-        <div className="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-line-grid">
-          <div className="flex-1 min-w-0">{title}</div>
+        <div className="min-h-16 shrink-0 flex items-center gap-3 px-5 py-2.5 border-b border-line-grid">
+          <div className="flex-1 min-w-[140px]">{title}</div>
           {headerActions && (
             <div className="flex items-center gap-2 min-w-0 overflow-x-auto">{headerActions}</div>
           )}
