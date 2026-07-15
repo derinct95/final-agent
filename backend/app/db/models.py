@@ -76,6 +76,9 @@ class QuarterlySnapshotORM(Base):
     claims_volume_monthly: Mapped[float] = mapped_column(Float)
     documentation_accuracy: Mapped[float] = mapped_column(Float)
     patient_satisfaction_score: Mapped[float] = mapped_column(Float)
+    clinical_quality_score: Mapped[float] = mapped_column(Float)
+    patient_visits_monthly: Mapped[float] = mapped_column(Float)
+    patient_portal_adoption_rate: Mapped[float] = mapped_column(Float)
 
     peer_clean_claim_rate: Mapped[float] = mapped_column(Float)
     peer_denial_rate: Mapped[float] = mapped_column(Float)
@@ -88,6 +91,9 @@ class QuarterlySnapshotORM(Base):
     peer_claims_volume_monthly: Mapped[float] = mapped_column(Float)
     peer_documentation_accuracy: Mapped[float] = mapped_column(Float)
     peer_patient_satisfaction_score: Mapped[float] = mapped_column(Float)
+    peer_clinical_quality_score: Mapped[float] = mapped_column(Float)
+    peer_patient_visits_monthly: Mapped[float] = mapped_column(Float)
+    peer_patient_portal_adoption_rate: Mapped[float] = mapped_column(Float)
 
     provider: Mapped[ProviderORM] = relationship(back_populates="quarters")
 
@@ -188,4 +194,5 @@ class AppointmentORM(Base):
     agenda: Mapped[str] = mapped_column(String, default="")
     scheduled_at: Mapped[str] = mapped_column(String)
     status: Mapped[str] = mapped_column(String, default="confirmed")
+    created_by: Mapped[str] = mapped_column(String, default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)

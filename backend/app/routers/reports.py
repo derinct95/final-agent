@@ -12,22 +12,22 @@ router = APIRouter(prefix="/api/reports", tags=["reports"])
 
 
 @router.get("/practice-review", response_model=PracticeReviewReport)
-def practice_review(
+async def practice_review(
     period: str = Query("quarterly", pattern="^(weekly|monthly|quarterly)$"),
     label: str | None = None,
     db: Session = Depends(get_db),
 ) -> PracticeReviewReport:
-    return generate_practice_review(db, period, label)
+    return await generate_practice_review(db, period, label)
 
 
 @router.get("/practice-review/download")
-def practice_review_download(
+async def practice_review_download(
     period: str = Query("quarterly", pattern="^(weekly|monthly|quarterly)$"),
     label: str | None = None,
     format: str = Query("pdf", pattern="^(pdf|csv)$"),
     db: Session = Depends(get_db),
 ):
-    report = generate_practice_review(db, period, label)
+    report = await generate_practice_review(db, period, label)
     if format == "csv":
         content = report_pdf.build_practice_review_csv(report)
         media_type, ext = "text/csv", "csv"

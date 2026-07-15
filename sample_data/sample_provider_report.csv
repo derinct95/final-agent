@@ -1,0 +1,36 @@
+Clearview Medical Group — Provider Performance Report (Synthetic Data Only)
+Provider,Dr. Wei Hassan
+Specialty,Urology
+Facility,Meridian Family Practice
+NPI,4296344958
+Email,wei.hassan@clearviewmedicalgroup.demo
+Reporting Period,All available history
+
+Performance Score,95.9
+Risk Level,low
+Stuck at Risk (quarters),0
+
+Metric,Provider,Peer Average
+Clean Claim Rate (%),96.4,86.4
+Denial Rate (%),3.0,12.0
+Days in AR,30.9,38.3
+First-Pass Resolution (%),97.7,83.2
+Coding Accuracy (%),98.9,88.6
+Prior-Auth Approval (%),95.8,88.6
+Net Collection Rate (%),97.4,89.1
+Avg Reimbursement / Claim ($),385.87,385.87
+Documentation Accuracy (%),97.9,89.2
+Patient Satisfaction (%),93.7,84.5
+
+Claims Summary
+Claims Submitted (trailing 12mo),6565
+Claims Paid,6077
+Claims Denied,202
+Claims Pending,286
+Revenue Collected,"$2,377,282"
+Leading Denial Reason,Insufficient Documentation
+
+Actions
+Title,Priority,Status,Recurring
+Schedule coding accuracy audit,low,resolved,No
+Review prior-authorization workflow,low,open,No

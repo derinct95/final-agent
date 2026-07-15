@@ -1,0 +1,24 @@
+=== Clearview Provider Performance Agent — Verification Run Log ===
+Timestamp: 2026-07-15T07:37:36Z
+
+--- Backend health ---
+GET /docs -> 200
+
+--- Core data endpoints (free, no LLM) ---
+GET /api/providers -> 200
+GET /api/providers/summary -> 200
+GET /api/providers/prov-007 -> 200
+GET /api/providers/prov-007/claims -> 200
+
+--- Export endpoints (free) ---
+GET /api/providers/export -> 200
+GET /api/reports/providers/prov-007/report (pdf) -> 200
+
+--- RBAC verification (free) ---
+POST /api/communications/email/send as clinical_analyst (expect 403) -> 403
+POST /api/communications/email/send with no role header (expect 403, secure default) -> 403
+
+--- Frontend ---
+GET http://localhost:5173 -> 200
+
+=== All checks completed successfully ===

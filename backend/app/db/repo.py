@@ -41,6 +41,7 @@ METRIC_FIELDS = [
     "cleanClaimRate", "denialRate", "daysInAR", "firstPassResolutionRate", "codingAccuracy",
     "priorAuthApprovalRate", "netCollectionRate", "avgReimbursementPerClaim", "claimsVolumeMonthly",
     "documentationAccuracy", "patientSatisfactionScore",
+    "clinicalQualityScore", "patientVisitsMonthly", "patientPortalAdoptionRate",
 ]
 
 PROCEDURE_CATALOG = [
@@ -69,6 +70,8 @@ def _metrics(q: QuarterlySnapshotORM) -> Metrics:
         priorAuthApprovalRate=q.prior_auth_approval_rate, netCollectionRate=q.net_collection_rate,
         avgReimbursementPerClaim=q.avg_reimbursement_per_claim, claimsVolumeMonthly=q.claims_volume_monthly,
         documentationAccuracy=q.documentation_accuracy, patientSatisfactionScore=q.patient_satisfaction_score,
+        clinicalQualityScore=q.clinical_quality_score, patientVisitsMonthly=q.patient_visits_monthly,
+        patientPortalAdoptionRate=q.patient_portal_adoption_rate,
     )
 
 
@@ -79,6 +82,8 @@ def _peer_metrics(q: QuarterlySnapshotORM) -> Metrics:
         priorAuthApprovalRate=q.peer_prior_auth_approval_rate, netCollectionRate=q.peer_net_collection_rate,
         avgReimbursementPerClaim=q.peer_avg_reimbursement_per_claim, claimsVolumeMonthly=q.peer_claims_volume_monthly,
         documentationAccuracy=q.peer_documentation_accuracy, patientSatisfactionScore=q.peer_patient_satisfaction_score,
+        clinicalQualityScore=q.peer_clinical_quality_score, patientVisitsMonthly=q.peer_patient_visits_monthly,
+        patientPortalAdoptionRate=q.peer_patient_portal_adoption_rate,
     )
 
 
@@ -423,7 +428,7 @@ def get_claims_status_summary(db: Session, provider_id: str, quarter: str | None
 
 def search_providers(
     db: Session, query: str | None = None, specialty: str | None = None, facility: str | None = None,
-    risk_level: str | None = None, flagged_only: bool = False, limit: int = 20,
+    risk_level: str | None = None, flagged_only: bool = False, stuck_at_risk_only: bool = False, limit: int = 20,
 ) -> list[ProviderSummary]:
     results = list_providers(db)
     if query:
@@ -437,6 +442,8 @@ def search_providers(
         results = [p for p in results if p.riskLevel == risk_level]
     if flagged_only:
         results = [p for p in results if p.flagged and not p.reviewed]
+    if stuck_at_risk_only:
+        results = [p for p in results if p.stuckAtRiskQuarters >= STUCK_AT_RISK_THRESHOLD]
     return results[:limit]
 
 
@@ -529,12 +536,14 @@ def send_email(
     )
 
 
-def list_emails(db: Session, provider_id: str | None = None) -> list[EmailMessage]:
+def list_emails(db: Session, provider_id: str | None = None, sent_by: str | None = None) -> list[EmailMessage]:
     rows = db.query(EmailMessageORM).order_by(EmailMessageORM.sent_at.desc()).all()
     out = []
     for row in rows:
         provider_ids = json.loads(row.provider_ids_json)
         if provider_id and provider_id not in provider_ids:
+            continue
+        if sent_by and row.sent_by != sent_by:
             continue
         out.append(EmailMessage(
             id=row.id, providerIds=provider_ids, recipients=json.loads(row.recipients_json),
@@ -546,12 +555,12 @@ def list_emails(db: Session, provider_id: str | None = None) -> list[EmailMessag
 
 def create_appointment(
     db: Session, provider_ids: list[str], topic: str, agenda: str, scheduled_at: str,
-    send_confirmation_email: bool = True,
+    send_confirmation_email: bool = True, created_by: str = "",
 ) -> Appointment:
     appt_id = f"apt-{uuid.uuid4().hex[:10]}"
     row = AppointmentORM(
         id=appt_id, provider_ids_json=json.dumps(provider_ids), topic=topic,
-        agenda=agenda, scheduled_at=scheduled_at, status="confirmed",
+        agenda=agenda, scheduled_at=scheduled_at, status="confirmed", created_by=created_by,
     )
     db.add(row)
     db.commit()
@@ -566,7 +575,7 @@ def create_appointment(
             f"Agenda:\n{agenda or '(no agenda provided)'}\n\n"
             f"-- Clearview Medical Group"
         )
-        send_email(db, provider_ids, subject, body, related_appointment_id=appt_id, sent_by="system")
+        send_email(db, provider_ids, subject, body, related_appointment_id=appt_id, sent_by=created_by or "system")
 
     return Appointment(
         id=row.id, providerIds=provider_ids, providerNames=names, topic=topic, agenda=agenda,
@@ -574,12 +583,16 @@ def create_appointment(
     )
 
 
-def list_appointments(db: Session, provider_id: str | None = None) -> list[Appointment]:
+def list_appointments(
+    db: Session, provider_id: str | None = None, created_by: str | None = None
+) -> list[Appointment]:
     rows = db.query(AppointmentORM).order_by(AppointmentORM.scheduled_at.desc()).all()
     out = []
     for row in rows:
         provider_ids = json.loads(row.provider_ids_json)
         if provider_id and provider_id not in provider_ids:
+            continue
+        if created_by and row.created_by != created_by:
             continue
         out.append(Appointment(
             id=row.id, providerIds=provider_ids, providerNames=_provider_names(db, provider_ids),

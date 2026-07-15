@@ -5,6 +5,7 @@ import time
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
+from app.auth_deps import require_admin
 from app.data.seed import FACILITIES, SPECIALTIES, generate_one_provider
 from app.db import repo
 from app.db.session import get_db
@@ -57,7 +58,9 @@ async def import_preview(file: UploadFile) -> ImportPreviewResult:
 
 
 @router.post("/commit", response_model=list[Provider])
-def import_commit(payload: ImportCommitRequest, db: Session = Depends(get_db)) -> list[Provider]:
+def import_commit(
+    payload: ImportCommitRequest, db: Session = Depends(get_db), _role: str = Depends(require_admin)
+) -> list[Provider]:
     cached = _preview_cache.pop(payload.importToken, None)
     if cached is None:
         raise HTTPException(status_code=400, detail="Import preview expired or not found. Please re-upload.")

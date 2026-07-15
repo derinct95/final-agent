@@ -11,13 +11,15 @@ interface Session {
 interface AuthContextValue {
   session: Session | null;
   loading: boolean;
-  login: (email: string, password: string, role?: string) => Promise<void>;
+  login: (email: string, password: string, role?: string, name?: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const STORAGE_KEY = "ppd_session";
+
+export const ADMIN_ROLE = "practice_admin";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -35,8 +37,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  async function login(email: string, password: string, role?: string) {
-    const result = await api.login(email, password);
+  async function login(email: string, password: string, role?: string, name?: string) {
+    const result = await api.login(email, password, name);
     const withRole: Session = { ...result, role };
     setSession(withRole);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(withRole));

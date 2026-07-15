@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/login", response_model=LoginResponse)
 def login(payload: LoginRequest) -> LoginResponse:
-    name = payload.email.split("@")[0].replace(".", " ").replace("_", " ").title() or "Demo User"
+    name = payload.name or payload.email.split("@")[0].replace(".", " ").replace("_", " ").title() or "Demo User"
     return LoginResponse(token=secrets.token_hex(16), name=name, email=payload.email)
 
 

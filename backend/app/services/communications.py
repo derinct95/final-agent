@@ -1,35 +1,19 @@
-"""Email/agenda drafting -- plain single-shot Claude call (not the full agent;
-this is pure text generation, no tool use needed), with the same
-forced-structured-output + rule-based-fallback pattern used by ai_insights.py
-and practice_review.py."""
+"""Email/agenda drafting -- agent-driven (Claude Agent SDK) as the primary
+path so it can cite relevant payer policy via search_policy_knowledge when
+the topic is denial-related, with a deterministic rule-based fallback only
+for when the agent/API key is unavailable."""
 
 import os
 
-import anthropic
-
+from app.agent.core import run_structured_task
 from app.models import Provider
 
-MODEL = "claude-opus-4-8"
-
-DRAFT_EMAIL_TOOL = {
-    "name": "record_email_draft",
-    "description": "Record a drafted email subject and body.",
-    "strict": True,
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "subject": {"type": "string"},
-            "body": {"type": "string"},
-        },
-        "required": ["subject", "body"],
-        "additionalProperties": False,
-    },
-}
-
-SYSTEM_PROMPT = """You are drafting a professional email on behalf of Clearview Medical Group's practice \
-administration to one or more providers, about a revenue-cycle-management performance topic. All data is \
-synthetic. Reference concrete figures from the provided provider data. Be respectful, specific, and concise -- \
-a real practice administrator would send this as written."""
+AGENTIC_SYSTEM_PROMPT = """You are drafting a professional email on behalf of Clearview Medical Group's \
+practice administration to one or more providers, about a revenue-cycle-management performance topic. All \
+data is synthetic. Reference concrete figures from the provided provider data. If the topic relates to a \
+denial reason or payer policy, use search_policy_knowledge to cite the relevant (synthetic) policy guidance \
+in the email. Be respectful, specific, and concise -- a real practice administrator would send this as \
+written. Once drafted, call record_email_draft exactly once with the subject and body."""
 
 
 def _rule_based_email(providers: list[Provider], topic: str) -> tuple[str, str]:
@@ -45,25 +29,27 @@ def _rule_based_email(providers: list[Provider], topic: str) -> tuple[str, str]:
     return subject, "\n".join(lines)
 
 
-def draft_email(providers: list[Provider], topic: str) -> tuple[str, str, str]:
+async def _call_agent_for_draft(providers: list[Provider], topic: str) -> tuple[str, str] | None:
+    provider_summary = "\n".join(
+        f"{p.name} ({p.specialty}): score={p.performanceScore}, risk={p.riskLevel}, "
+        f"denialRate={p.metrics.denialRate}%, daysInAR={p.metrics.daysInAR}, "
+        f"stuckAtRiskQuarters={p.stuckAtRiskQuarters}"
+        for p in providers
+    )
+    prompt = f"Topic: {topic}\n\nProviders:\n{provider_summary}"
+    data = await run_structured_task(prompt, "record_email_draft", system_prompt=AGENTIC_SYSTEM_PROMPT)
+    if not data:
+        return None
+    try:
+        return data["subject"], data["body"]
+    except (KeyError, TypeError):
+        return None
+
+
+async def draft_email(providers: list[Provider], topic: str) -> tuple[str, str, str]:
     if os.environ.get("ANTHROPIC_API_KEY"):
-        try:
-            client = anthropic.Anthropic()
-            provider_summary = "\n".join(
-                f"{p.name} ({p.specialty}): score={p.performanceScore}, risk={p.riskLevel}, "
-                f"denialRate={p.metrics.denialRate}%, daysInAR={p.metrics.daysInAR}, "
-                f"stuckAtRiskQuarters={p.stuckAtRiskQuarters}"
-                for p in providers
-            )
-            response = client.messages.create(
-                model=MODEL, max_tokens=1024, system=SYSTEM_PROMPT,
-                tools=[DRAFT_EMAIL_TOOL],
-                tool_choice={"type": "tool", "name": "record_email_draft"},
-                messages=[{"role": "user", "content": f"Topic: {topic}\n\nProviders:\n{provider_summary}"}],
-            )
-            tool_use = next(b for b in response.content if b.type == "tool_use")
-            return tool_use.input["subject"], tool_use.input["body"], "ai"
-        except Exception:
-            pass
+        agentic = await _call_agent_for_draft(providers, topic)
+        if agentic:
+            return agentic[0], agentic[1], "ai"
     subject, body = _rule_based_email(providers, topic)
     return subject, body, "rule"

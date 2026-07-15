@@ -136,6 +136,9 @@ def _metrics_for_score(rng: random.Random, score: float) -> dict:
         "claimsVolumeMonthly": round(rng.uniform(150, 600), 0),
         "documentationAccuracy": round(max(0, min(100, jitter(_lerp(score, 35, 97, 70, 98), 2.5))), 1),
         "patientSatisfactionScore": round(max(0, min(100, jitter(_lerp(score, 35, 97, 58, 96), 3.5))), 1),
+        "clinicalQualityScore": round(max(0, min(100, jitter(_lerp(score, 35, 97, 68, 97), 2.5))), 1),
+        "patientVisitsMonthly": round(rng.uniform(120, 480), 0),
+        "patientPortalAdoptionRate": round(max(0, min(100, jitter(_lerp(score, 35, 97, 40, 92), 3.5))), 1),
     }
 
 
@@ -148,6 +151,7 @@ def _peer_benchmark(rng: random.Random, metrics: dict) -> dict:
         "firstPassResolutionRate": 83.0, "codingAccuracy": 89.0,
         "priorAuthApprovalRate": 86.0, "netCollectionRate": 91.0,
         "documentationAccuracy": 90.0, "patientSatisfactionScore": 82.0,
+        "clinicalQualityScore": 85.0, "patientPortalAdoptionRate": 68.0,
     }
     return {
         "cleanClaimRate": round(jitter(baseline["cleanClaimRate"], 3), 1),
@@ -161,6 +165,9 @@ def _peer_benchmark(rng: random.Random, metrics: dict) -> dict:
         "claimsVolumeMonthly": metrics["claimsVolumeMonthly"],
         "documentationAccuracy": round(jitter(baseline["documentationAccuracy"], 2.5), 1),
         "patientSatisfactionScore": round(jitter(baseline["patientSatisfactionScore"], 3.5), 1),
+        "clinicalQualityScore": round(jitter(baseline["clinicalQualityScore"], 2.5), 1),
+        "patientVisitsMonthly": metrics["patientVisitsMonthly"],
+        "patientPortalAdoptionRate": round(jitter(baseline["patientPortalAdoptionRate"], 4), 1),
     }
 
 

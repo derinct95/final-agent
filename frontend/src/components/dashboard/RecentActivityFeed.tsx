@@ -2,7 +2,9 @@ import { CalendarCheck, Mail, Radio } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/client";
+import type { EmailMessageRecord } from "../../types";
 import { relativeTime } from "../../utils/relativeTime";
+import EmailDetailModal from "../communications/EmailDetailModal";
 
 interface ActivityItem {
   key: string;
@@ -10,6 +12,7 @@ interface ActivityItem {
   text: string;
   at: string;
   providerId?: string;
+  email?: EmailMessageRecord;
 }
 
 interface RecentActivityFeedProps {
@@ -18,6 +21,7 @@ interface RecentActivityFeedProps {
 
 export default function RecentActivityFeed({ providerIds }: RecentActivityFeedProps) {
   const [items, setItems] = useState<ActivityItem[]>([]);
+  const [openEmail, setOpenEmail] = useState<EmailMessageRecord | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -32,6 +36,7 @@ export default function RecentActivityFeed({ providerIds }: RecentActivityFeedPr
           text: `Email sent: "${e.subject}" to ${e.recipients.length} recipient(s)`,
           at: e.sentAt,
           providerId: e.providerIds[0],
+          email: e,
         }));
       const apptItems: ActivityItem[] = appointments
         .filter((a) => a.providerIds.some((id) => idSet.has(id)))
@@ -62,7 +67,11 @@ export default function RecentActivityFeed({ providerIds }: RecentActivityFeedPr
           <li key={item.key}>
             <button
               type="button"
-              onClick={() => item.providerId && navigate(`/providers/${item.providerId}`, { state: { backgroundLocation: location } })}
+              onClick={() =>
+                item.email
+                  ? setOpenEmail(item.email)
+                  : item.providerId && navigate(`/providers/${item.providerId}`, { state: { backgroundLocation: location } })
+              }
               className="w-full flex items-start gap-2 text-left px-2 py-1.5 rounded-lg hover:bg-plane/60 transition"
             >
               <item.icon className="w-3.5 h-3.5 mt-0.5 text-chart-1 shrink-0" />
@@ -72,6 +81,7 @@ export default function RecentActivityFeed({ providerIds }: RecentActivityFeedPr
           </li>
         ))}
       </ul>
+      <EmailDetailModal email={openEmail} onClose={() => setOpenEmail(null)} />
     </section>
   );
 }

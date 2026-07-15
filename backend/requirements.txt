@@ -3,7 +3,6 @@ uvicorn[standard]>=0.30.6
 pydantic>=2.9.2
 pandas>=2.3.0
 python-multipart>=0.0.9
-anthropic>=0.39.0
 python-dotenv>=1.0.1
 sqlalchemy>=2.0
 reportlab>=4.0

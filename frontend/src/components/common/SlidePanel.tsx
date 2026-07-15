@@ -78,23 +78,27 @@ export default function SlidePanel({
         )}
         <div className="h-16 shrink-0 flex items-center gap-3 px-5 border-b border-line-grid">
           <div className="flex-1 min-w-0">{title}</div>
-          {headerActions}
-          <button
-            type="button"
-            onClick={() => setIsMaximized((v) => !v)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:bg-plane hover:text-ink-primary transition"
-            title={isMaximized ? "Restore" : "Maximize"}
-          >
-            {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:bg-plane hover:text-ink-primary transition"
-            title="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          {headerActions && (
+            <div className="flex items-center gap-2 min-w-0 overflow-x-auto">{headerActions}</div>
+          )}
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsMaximized((v) => !v)}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:bg-plane hover:text-ink-primary transition"
+              title={isMaximized ? "Restore" : "Maximize"}
+            >
+              {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:bg-plane hover:text-ink-primary transition"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto">{children}</div>
       </div>

@@ -1,6 +1,7 @@
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { api } from "../../api/client";
+import { ADMIN_ROLE, useAuth } from "../../context/AuthContext";
 import type { ImportPreviewResult, Provider } from "../../types";
 import Modal from "../common/Modal";
 import ImportPreviewTable from "./ImportPreviewTable";
@@ -16,9 +17,11 @@ const FORMAT_LABEL: Record<string, string> = { fhir: "FHIR", hl7: "HL7v2", csv: 
 export default function ImportWizardModal({ preview, onClose, onImported }: ImportWizardModalProps) {
   const [committing, setCommitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { session } = useAuth();
+  const isAdmin = session?.role === ADMIN_ROLE;
 
   async function handleConfirm() {
-    if (!preview) return;
+    if (!preview || !isAdmin) return;
     setCommitting(true);
     setError(null);
     try {
@@ -56,6 +59,9 @@ export default function ImportWizardModal({ preview, onClose, onImported }: Impo
           <ImportPreviewTable rows={preview.rows} />
 
           {error && <p className="text-sm text-risk-critical">{error}</p>}
+          {!isAdmin && (
+            <p className="text-sm text-risk-medium">Requires Practice Administrator access to commit this import.</p>
+          )}
 
           <div className="flex justify-end gap-2">
             <button onClick={onClose} className="text-sm px-4 py-2 rounded-lg border border-line-axis hover:bg-plane transition">
@@ -63,7 +69,8 @@ export default function ImportWizardModal({ preview, onClose, onImported }: Impo
             </button>
             <button
               onClick={handleConfirm}
-              disabled={committing || preview.rows.length === 0}
+              disabled={committing || preview.rows.length === 0 || !isAdmin}
+              title={isAdmin ? undefined : "Requires Practice Administrator access"}
               className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg bg-ink-primary text-white hover:bg-ink-primary/90 transition disabled:opacity-60"
             >
               <CheckCircle2 className="w-4 h-4" /> {committing ? "Importing..." : "Confirm Import"}

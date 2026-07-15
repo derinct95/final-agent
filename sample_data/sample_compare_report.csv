@@ -1,0 +1,20 @@
+Clearview Medical Group — Provider Comparison Report (Synthetic Data Only)
+Provider,Specialty,Facility,Score,Risk,Trend
+Dr. Wei Hassan,Urology,Meridian Family Practice,95.9,low,flat
+Dr. Nia Novak,Nephrology,Meridian Family Practice,92.9,low,up
+Dr. Michael Kim,ENT,Riverside Medical Center,92.8,low,flat
+
+Metric,Wei Hassan,Nia Novak,Michael Kim
+Clean Claim Rate (%),96.4,95.9,93.9
+Denial Rate (%),3.0,4.6,5.5
+Days in AR,30.9,30.4,34.4
+First-Pass Resolution (%),97.7,93.5,93.5
+Coding Accuracy (%),98.9,95.6,94.8
+Prior-Auth Approval (%),95.8,93.2,93.0
+Net Collection Rate (%),97.4,98.5,98.6
+Avg Reimbursement / Claim ($),385.87,191.97,366.92
+Documentation Accuracy (%),97.9,95.4,95.1
+Patient Satisfaction (%),93.7,92.8,90.3
+Clinical Quality Score (%),94.9,96.4,92.9
+Patient Visits / Month,395.0,305.0,136.0
+Patient Portal Adoption (%),91.2,85.8,85.7

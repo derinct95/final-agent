@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.auth_deps import require_admin
 from app.db import repo
 from app.db.session import get_db
 from app.models import (
@@ -14,7 +15,9 @@ from app.models import (
     Provider,
     ProviderSummary,
     QuarterlySnapshot,
+    RootCauseAnalysis,
 )
+from app.services.root_cause import generate_root_cause
 
 router = APIRouter(prefix="/api/providers", tags=["providers"])
 
@@ -94,6 +97,14 @@ def get_claim_detail(provider_id: str, claim_id: str, db: Session = Depends(get_
     return detail
 
 
+@router.post("/{provider_id}/root-cause", response_model=RootCauseAnalysis)
+async def root_cause_endpoint(provider_id: str, db: Session = Depends(get_db)) -> RootCauseAnalysis:
+    result = await generate_root_cause(db, provider_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Provider not found")
+    return result
+
+
 @router.patch("/{provider_id}/flag", response_model=Provider)
 def update_flag(provider_id: str, payload: FlagUpdateRequest, db: Session = Depends(get_db)) -> Provider:
     provider = repo.set_flag(db, provider_id, payload.flagged, payload.reviewed)
@@ -103,7 +114,13 @@ def update_flag(provider_id: str, payload: FlagUpdateRequest, db: Session = Depe
 
 
 @router.patch("/{provider_id}/actions/{action_id}", response_model=Provider)
-def update_action(provider_id: str, action_id: str, payload: ActionUpdateRequest, db: Session = Depends(get_db)) -> Provider:
+def update_action(
+    provider_id: str,
+    action_id: str,
+    payload: ActionUpdateRequest,
+    db: Session = Depends(get_db),
+    _role: str = Depends(require_admin),
+) -> Provider:
     provider = repo.set_action_status(db, provider_id, action_id, payload.status)
     if provider is None:
         raise HTTPException(status_code=404, detail="Provider or action not found")

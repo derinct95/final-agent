@@ -12,7 +12,7 @@ _cache: dict[str, list[Insight]] = {}
 
 
 @router.get("", response_model=list[Insight])
-def get_insights(
+async def get_insights(
     refresh: bool = False,
     practiceType: str | None = Query(None, pattern="^(medical|dental)$"),
     db: Session = Depends(get_db),
@@ -20,5 +20,5 @@ def get_insights(
     cache_key = practiceType or "all"
     if cache_key not in _cache or refresh:
         full_providers = [repo.get_provider(db, s.id) for s in repo.list_providers(db, practiceType)]
-        _cache[cache_key] = generate_insights([p for p in full_providers if p is not None])
+        _cache[cache_key] = await generate_insights([p for p in full_providers if p is not None])
     return _cache[cache_key]

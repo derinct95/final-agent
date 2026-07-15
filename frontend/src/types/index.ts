@@ -16,6 +16,9 @@ export interface Metrics {
   claimsVolumeMonthly: number;
   documentationAccuracy: number;
   patientSatisfactionScore: number;
+  clinicalQualityScore: number;
+  patientVisitsMonthly: number;
+  patientPortalAdoptionRate: number;
 }
 
 export interface DenialReasonBreakdown {
@@ -140,6 +143,15 @@ export interface Insight {
   recommendedAction: string;
   confidenceScore: number;
   estimatedFinancialImpact: number | null;
+  generatedBy: "ai" | "rule";
+}
+
+export interface RootCauseAnalysis {
+  providerId: string;
+  narrative: string;
+  contributingFactors: string[];
+  citedPolicies: string[];
+  recommendedRemediation: string[];
   generatedBy: "ai" | "rule";
 }
 

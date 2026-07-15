@@ -27,6 +27,8 @@ const AXES: { axis: string; key: keyof Metrics; invert?: boolean }[] = [
   { axis: "Net Collect.", key: "netCollectionRate" },
   { axis: "Pt. Satisf.", key: "patientSatisfactionScore" },
   { axis: "Denial Ctrl", key: "denialRate", invert: true },
+  { axis: "Clinical Qual.", key: "clinicalQualityScore" },
+  { axis: "Portal Adopt.", key: "patientPortalAdoptionRate" },
 ];
 
 function toRadarData(series: RadarSeries[]) {

@@ -1,124 +1,29 @@
-"""AI proactive insights: real Claude-generated narrative insights, with a
-deterministic rule-based fallback so the dashboard never breaks offline or
-when ANTHROPIC_API_KEY is missing / the API call fails."""
+"""AI proactive insights: agent-driven (Claude Agent SDK, with tool use + policy
+RAG) as the primary path, with a deterministic rule-based fallback only for
+when the agent/API key is unavailable -- so the dashboard never breaks
+offline, but the agent is the mechanism doing the actual analysis."""
 
-import json
 import os
 
-import anthropic
-
+from app.agent.core import run_structured_task
 from app.models import Insight, Provider
 
-MODEL = "claude-opus-4-8"
-
-RECORD_INSIGHTS_TOOL = {
-    "name": "record_insights",
-    "description": "Record the structured list of AI-generated proactive insights for the provider performance dashboard.",
-    "strict": True,
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "insights": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "providerId": {"type": "string"},
-                        "providerName": {"type": "string"},
-                        "severity": {
-                            "type": "string",
-                            "enum": ["critical", "high", "medium", "info"],
-                        },
-                        "title": {"type": "string"},
-                        "narrative": {"type": "string"},
-                        "recommendedAction": {"type": "string"},
-                        "confidenceScore": {"type": "number"},
-                        "estimatedFinancialImpact": {"type": "number"},
-                    },
-                    "required": [
-                        "providerId",
-                        "providerName",
-                        "severity",
-                        "title",
-                        "narrative",
-                        "recommendedAction",
-                        "confidenceScore",
-                        "estimatedFinancialImpact",
-                    ],
-                    "additionalProperties": False,
-                },
-            }
-        },
-        "required": ["insights"],
-        "additionalProperties": False,
-    },
-}
-
-SYSTEM_PROMPT = """You are an AI analyst embedded in a Revenue Cycle Management (RCM) \
-provider performance dashboard. You will be given performance data for a set of \
-healthcare providers (scores, denial rates, days in AR, coding accuracy, trends, \
-claims history). Identify the 4-8 most important, actionable insights across the \
-whole provider population -- prioritize revenue-impacting risks (rising denial \
-rates, declining scores, compliance/coding risk) and call out standout top \
-performers worth replicating. Use providerId "" and providerName "Organization-wide" \
-for insights that span multiple providers rather than one. Write narratives a \
-revenue-cycle director would find credible and specific, referencing actual \
-numbers from the data. Estimate confidenceScore as a 0-1 probability and \
-estimatedFinancialImpact as a signed USD estimate (positive = opportunity/savings, \
-negative = revenue at risk) -- use 0 if not estimable."""
-
-
-def _provider_payload(providers: list[Provider]) -> list[dict]:
-    return [
-        {
-            "id": p.id,
-            "name": p.name,
-            "specialty": p.specialty,
-            "performanceScore": p.performanceScore,
-            "riskLevel": p.riskLevel,
-            "trend": p.trend,
-            "scoreHistory": p.scoreHistory,
-            "flagged": p.flagged,
-            "metrics": p.metrics.model_dump(),
-            "peerAverageMetrics": p.peerAverageMetrics.model_dump(),
-        }
-        for p in providers
-    ]
-
-
-def _call_claude(providers: list[Provider]) -> list[Insight]:
-    client = anthropic.Anthropic()
-    response = client.messages.create(
-        model=MODEL,
-        max_tokens=4096,
-        system=SYSTEM_PROMPT,
-        tools=[RECORD_INSIGHTS_TOOL],
-        tool_choice={"type": "tool", "name": "record_insights"},
-        messages=[
-            {
-                "role": "user",
-                "content": json.dumps(_provider_payload(providers)),
-            }
-        ],
-    )
-    tool_use = next(b for b in response.content if b.type == "tool_use")
-    raw_insights = tool_use.input["insights"]
-
-    insights = []
-    for i, item in enumerate(raw_insights):
-        insights.append(Insight(
-            id=f"ins-ai-{i}",
-            providerId=item["providerId"] or None,
-            providerName=item["providerName"] or None,
-            severity=item["severity"],
-            title=item["title"],
-            narrative=item["narrative"],
-            recommendedAction=item["recommendedAction"],
-            confidenceScore=item["confidenceScore"],
-            estimatedFinancialImpact=item["estimatedFinancialImpact"],
-            generatedBy="ai",
-        ))
-    return insights
+AGENTIC_SYSTEM_PROMPT = """You are an AI analyst embedded in a provider performance dashboard for Clearview \
+Medical Group (100% synthetic data, no real PHI) that consolidates provider performance across clinical \
+quality, productivity, patient engagement, documentation efficiency, revenue cycle, and patient satisfaction. \
+Use your tools -- search_providers, compare_providers, get_provider_claims, summarize_department, \
+search_policy_knowledge -- to investigate the current provider population before drawing conclusions. \
+Identify the 4-8 most important, actionable insights across the whole provider population: prioritize \
+revenue-impacting risks (rising denial rates, declining scores, compliance/coding risk) but also surface \
+clinical-quality gaps (clinicalQualityScore), productivity concerns (patientVisitsMonthly), and patient-\
+engagement gaps (patientPortalAdoptionRate) when they stand out -- do not limit yourself to revenue-cycle \
+metrics alone. Call out standout top performers worth replicating. When a denial pattern is involved, cite \
+the relevant policy via search_policy_knowledge. Use providerId "" and providerName "Organization-wide" for \
+insights spanning multiple providers rather than one. Write narratives a revenue-cycle director would find \
+credible and specific, referencing actual numbers you found via your tools -- do not guess or invent figures. \
+Estimate confidenceScore as a 0-1 probability and estimatedFinancialImpact as a signed USD estimate (positive \
+= opportunity/savings, negative = revenue at risk; use 0 if not estimable). Once your investigation is \
+complete, call record_insights exactly once with your findings."""
 
 
 def _rule_based_fallback(providers: list[Provider]) -> list[Insight]:
@@ -181,10 +86,40 @@ def _rule_based_fallback(providers: list[Provider]) -> list[Insight]:
     return insights
 
 
-def generate_insights(providers: list[Provider]) -> list[Insight]:
-    if os.environ.get("ANTHROPIC_API_KEY"):
+def _parse_agent_insights(data: dict) -> list[Insight] | None:
+    insights = []
+    for i, item in enumerate(data.get("insights", [])):
         try:
-            return _call_claude(providers)
-        except Exception:
-            pass
+            insights.append(Insight(
+                id=f"ins-agent-{i}",
+                providerId=item["providerId"] or None,
+                providerName=item["providerName"] or None,
+                severity=item["severity"],
+                title=item["title"],
+                narrative=item["narrative"],
+                recommendedAction=item["recommendedAction"],
+                confidenceScore=item["confidenceScore"],
+                estimatedFinancialImpact=item["estimatedFinancialImpact"],
+                generatedBy="ai",
+            ))
+        except (KeyError, ValueError):
+            continue
+    return insights or None
+
+
+async def _call_agent(providers: list[Provider]) -> list[Insight] | None:
+    provider_ids = ", ".join(p.id for p in providers)
+    prompt = (
+        f"Investigate these {len(providers)} providers (ids: {provider_ids}) using your tools, then call "
+        f"record_insights with 4-8 structured insights."
+    )
+    data = await run_structured_task(prompt, "record_insights", system_prompt=AGENTIC_SYSTEM_PROMPT)
+    return _parse_agent_insights(data) if data else None
+
+
+async def generate_insights(providers: list[Provider]) -> list[Insight]:
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        agentic = await _call_agent(providers)
+        if agentic:
+            return agentic
     return _rule_based_fallback(providers)

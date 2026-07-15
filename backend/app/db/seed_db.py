@@ -39,6 +39,8 @@ def insert_provider(db: Session, p: dict) -> None:
             prior_auth_approval_rate=m["priorAuthApprovalRate"], net_collection_rate=m["netCollectionRate"],
             avg_reimbursement_per_claim=m["avgReimbursementPerClaim"], claims_volume_monthly=m["claimsVolumeMonthly"],
             documentation_accuracy=m["documentationAccuracy"], patient_satisfaction_score=m["patientSatisfactionScore"],
+            clinical_quality_score=m["clinicalQualityScore"], patient_visits_monthly=m["patientVisitsMonthly"],
+            patient_portal_adoption_rate=m["patientPortalAdoptionRate"],
             peer_clean_claim_rate=peer["cleanClaimRate"], peer_denial_rate=peer["denialRate"],
             peer_days_in_ar=peer["daysInAR"], peer_first_pass_resolution_rate=peer["firstPassResolutionRate"],
             peer_coding_accuracy=peer["codingAccuracy"], peer_prior_auth_approval_rate=peer["priorAuthApprovalRate"],
@@ -46,6 +48,9 @@ def insert_provider(db: Session, p: dict) -> None:
             peer_claims_volume_monthly=peer["claimsVolumeMonthly"],
             peer_documentation_accuracy=peer["documentationAccuracy"],
             peer_patient_satisfaction_score=peer["patientSatisfactionScore"],
+            peer_clinical_quality_score=peer["clinicalQualityScore"],
+            peer_patient_visits_monthly=peer["patientVisitsMonthly"],
+            peer_patient_portal_adoption_rate=peer["patientPortalAdoptionRate"],
         ))
 
     for c in p["claims"]:

@@ -25,6 +25,9 @@ class Metrics(BaseModel):
     claimsVolumeMonthly: float
     documentationAccuracy: float
     patientSatisfactionScore: float
+    clinicalQualityScore: float
+    patientVisitsMonthly: float
+    patientPortalAdoptionRate: float
 
 
 class DenialReasonBreakdown(BaseModel):
@@ -262,9 +265,19 @@ class Insight(BaseModel):
     generatedBy: InsightSource
 
 
+class RootCauseAnalysis(BaseModel):
+    providerId: str
+    narrative: str
+    contributingFactors: list[str]
+    citedPolicies: list[str]
+    recommendedRemediation: list[str]
+    generatedBy: InsightSource
+
+
 class LoginRequest(BaseModel):
     email: str
     password: str
+    name: str | None = None
 
 
 class LoginResponse(BaseModel):

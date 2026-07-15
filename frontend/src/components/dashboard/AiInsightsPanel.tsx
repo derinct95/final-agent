@@ -61,11 +61,12 @@ export default function AiInsightsPanel({ insights, loading, onRefresh }: AiInsi
             return (
               <div
                 key={insight.id}
-                className="rounded-xl border border-line-grid p-4 flex flex-col gap-2 hover:border-ink-primary/20 transition"
+                className="rounded-xl border border-line-grid p-4 flex flex-col gap-2 hover:shadow-md transition"
+                style={{ borderLeft: `4px solid ${config.color}`, backgroundColor: `${config.color}08` }}
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ backgroundColor: `${config.color}1a`, color: config.color }}
                   >
                     <Icon className="w-3 h-3" />

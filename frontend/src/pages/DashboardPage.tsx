@@ -1,4 +1,4 @@
-import { AlertCircle, MapPin, Phone, RefreshCw } from "lucide-react";
+import { AlertCircle, MapPin, Phone, RefreshCw, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api/client";
 import AiInsightsPanel from "../components/dashboard/AiInsightsPanel";
@@ -28,6 +28,7 @@ export default function DashboardPage({ practiceType = "medical" }: DashboardPag
   const [insightsLoading, setInsightsLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [agentRefreshing, setAgentRefreshing] = useState(false);
 
   const loadProviders = useCallback(async () => {
     const [providerList, summaryData] = await Promise.all([
@@ -73,6 +74,15 @@ export default function DashboardPage({ practiceType = "medical" }: DashboardPag
 
   async function handleImported() {
     await loadProviders();
+  }
+
+  async function handleAgentRefresh() {
+    setAgentRefreshing(true);
+    try {
+      await Promise.all([loadInsights(true), loadProviders()]);
+    } finally {
+      setAgentRefreshing(false);
+    }
   }
 
   if (loadError) {
@@ -134,8 +144,20 @@ export default function DashboardPage({ practiceType = "medical" }: DashboardPag
             <span>Synthetic data only — no real patient or provider PHI</span>
           </div>
         </div>
-        <div className="relative z-10 bg-white/95 rounded-xl p-2 backdrop-blur-sm">
-          <ExportImportBar onImported={handleImported} />
+        <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <button
+            type="button"
+            onClick={handleAgentRefresh}
+            disabled={agentRefreshing}
+            title="Re-run the AI agent to refresh insights and dashboard data in one pass"
+            className="flex items-center justify-center gap-2 text-sm font-medium px-4 py-2.5 rounded-xl bg-white/95 text-ink-primary hover:bg-white transition disabled:opacity-70"
+          >
+            <Sparkles className={`w-4 h-4 text-chart-5 ${agentRefreshing ? "animate-pulse" : ""}`} />
+            {agentRefreshing ? "Agent refreshing..." : "Agent Refresh"}
+          </button>
+          <div className="bg-white/95 rounded-xl p-2 backdrop-blur-sm">
+            <ExportImportBar onImported={handleImported} />
+          </div>
         </div>
       </div>
 

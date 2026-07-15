@@ -78,6 +78,24 @@ const METRIC_INFO: Record<keyof Metrics, MetricInfo> = {
     improvement: "Improves with shorter wait times, clearer communication, and consistent follow-up.",
     target: 90,
   },
+  clinicalQualityScore: {
+    description: "A composite clinical-quality measure (in the spirit of P4P/MIPS quality-category scoring) reflecting adherence to evidence-based care measures, independent of billing/coding correctness.",
+    calculation: "Clinical Quality Score = weighted average of applicable clinical quality measure pass rates, normalized to 0-100.",
+    improvement: "Improves with better care-gap closure, adherence to clinical guidelines, and consistent quality-measure documentation at the point of care.",
+    target: 90,
+  },
+  patientVisitsMonthly: {
+    description: "Average number of patient visits per month -- a productivity/throughput measure of clinical capacity utilization.",
+    calculation: "Patient Visits Monthly = Total patient visits ÷ Number of months in the period.",
+    improvement: "Reflects scheduling efficiency and patient demand -- not itself a quality metric, but a capacity/productivity signal.",
+    target: 320,
+  },
+  patientPortalAdoptionRate: {
+    description: "Share of this provider's patients actively using the patient portal (messaging, scheduling, results) -- a proxy for patient engagement.",
+    calculation: "Patient Portal Adoption Rate = (Patients with an active portal account ÷ Total active patients) × 100.",
+    improvement: "Improves with proactive portal enrollment at check-in, staff prompts, and patient education on portal features.",
+    target: 75,
+  },
 };
 
 interface MetricDetailModalProps {

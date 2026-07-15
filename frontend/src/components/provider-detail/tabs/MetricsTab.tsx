@@ -27,6 +27,9 @@ const CARDS: { key: keyof Metrics; label: string; type: "percent" | "number" | "
   { key: "avgReimbursementPerClaim", label: "Avg Reimbursement / Claim", type: "currency", higherIsBetter: true },
   { key: "documentationAccuracy", label: "Documentation Accuracy", type: "percent", higherIsBetter: true },
   { key: "patientSatisfactionScore", label: "Patient Satisfaction", type: "percent", higherIsBetter: true },
+  { key: "clinicalQualityScore", label: "Clinical Quality Score", type: "percent", higherIsBetter: true },
+  { key: "patientVisitsMonthly", label: "Patient Visits / Month", type: "number", higherIsBetter: true },
+  { key: "patientPortalAdoptionRate", label: "Patient Portal Adoption", type: "percent", higherIsBetter: true },
 ];
 
 export default function MetricsTab({

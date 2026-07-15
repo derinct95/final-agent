@@ -12,6 +12,7 @@ interface ActionsTabProps {
   providerId: string;
   providerName: string;
   onStatusChange: (actionId: string, status: ActionStatus) => void;
+  isAdmin: boolean;
 }
 
 const STATUS_ORDER: ActionStatus[] = ["open", "in_progress", "resolved"];
@@ -32,7 +33,7 @@ function StatusIcon({ status }: { status: ActionStatus }) {
   return <Circle className="w-4 h-4 text-ink-muted" />;
 }
 
-export default function ActionsTab({ actions, quarterlyHistory, providerId, providerName, onStatusChange }: ActionsTabProps) {
+export default function ActionsTab({ actions, quarterlyHistory, providerId, providerName, onStatusChange, isAdmin }: ActionsTabProps) {
   const [openAction, setOpenAction] = useState<Action | null>(null);
   const [completingAction, setCompletingAction] = useState<Action | null>(null);
   const [emailAction, setEmailAction] = useState<Action | null>(null);
@@ -45,6 +46,7 @@ export default function ActionsTab({ actions, quarterlyHistory, providerId, prov
   }
 
   function requestAdvance(action: Action) {
+    if (!isAdmin) return;
     const next = nextStatus(action.status);
     if (next === "resolved") {
       setOpenAction(null);
@@ -99,8 +101,9 @@ export default function ActionsTab({ actions, quarterlyHistory, providerId, prov
               e.stopPropagation();
               requestAdvance(action);
             }}
-            className="mt-0.5 shrink-0"
-            title="Click to advance status"
+            disabled={!isAdmin}
+            className="mt-0.5 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+            title={isAdmin ? "Click to advance status" : "Requires Practice Administrator access"}
           >
             <StatusIcon status={action.status} />
           </button>
@@ -143,7 +146,7 @@ export default function ActionsTab({ actions, quarterlyHistory, providerId, prov
         quarterlyHistory={quarterlyHistory}
         onClose={() => setOpenAction(null)}
         onAdvanceToReview={() => {
-          if (openAction) onStatusChange(openAction.id, "in_progress");
+          if (openAction && isAdmin) onStatusChange(openAction.id, "in_progress");
           setOpenAction(null);
         }}
         onRequestComplete={() => {

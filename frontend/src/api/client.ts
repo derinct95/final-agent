@@ -19,13 +19,30 @@ import type {
   ProviderSummary,
   QuarterlySnapshot,
   ReviewPeriod,
+  RootCauseAnalysis,
 } from "../types";
 import { downloadResponse } from "../utils/download";
 
+const SESSION_STORAGE_KEY = "ppd_session";
+
+function getIdentityHeaders(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return {};
+    const session = JSON.parse(raw) as { role?: string; email?: string };
+    return {
+      ...(session.role ? { "X-User-Role": session.role } : {}),
+      ...(session.email ? { "X-User-Email": session.email } : {}),
+    };
+  } catch {
+    return {};
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...init,
+    headers: { "Content-Type": "application/json", ...getIdentityHeaders(), ...(init?.headers || {}) },
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -35,10 +52,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  login: (email: string, password: string) =>
+  login: (email: string, password: string, name?: string) =>
     request<{ token: string; name: string; email: string }>("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, name }),
     }),
 
   getDemoAccounts: () => request<DemoAccount[]>("/auth/demo-accounts"),
@@ -67,6 +84,9 @@ export const api = {
 
   getClaimDetail: (providerId: string, claimId: string) =>
     request<ClaimDetail>(`/providers/${providerId}/claims/${claimId}`),
+
+  getRootCause: (providerId: string) =>
+    request<RootCauseAnalysis>(`/providers/${providerId}/root-cause`, { method: "POST" }),
 
   setFlag: (id: string, payload: { flagged?: boolean; reviewed?: boolean }) =>
     request<Provider>(`/providers/${id}/flag`, {

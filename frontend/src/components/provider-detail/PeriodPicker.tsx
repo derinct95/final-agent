@@ -6,6 +6,7 @@ const METRIC_FIELDS: (keyof Metrics)[] = [
   "cleanClaimRate", "denialRate", "daysInAR", "firstPassResolutionRate", "codingAccuracy",
   "priorAuthApprovalRate", "netCollectionRate", "avgReimbursementPerClaim", "claimsVolumeMonthly",
   "documentationAccuracy", "patientSatisfactionScore",
+  "clinicalQualityScore", "patientVisitsMonthly", "patientPortalAdoptionRate",
 ];
 
 function averageMetrics(list: Metrics[]): Metrics {

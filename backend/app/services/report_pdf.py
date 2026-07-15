@@ -26,6 +26,8 @@ COMPARE_METRIC_DEFS = [
     ("Coding Accuracy (%)", "codingAccuracy"), ("Prior-Auth Approval (%)", "priorAuthApprovalRate"),
     ("Net Collection Rate (%)", "netCollectionRate"), ("Avg Reimbursement / Claim ($)", "avgReimbursementPerClaim"),
     ("Documentation Accuracy (%)", "documentationAccuracy"), ("Patient Satisfaction (%)", "patientSatisfactionScore"),
+    ("Clinical Quality Score (%)", "clinicalQualityScore"), ("Patient Visits / Month", "patientVisitsMonthly"),
+    ("Patient Portal Adoption (%)", "patientPortalAdoptionRate"),
 ]
 
 RISK_COLORS = {
@@ -82,14 +84,17 @@ def _percent_metrics_chart(m, peer) -> Drawing:
     labels = [
         "Clean Claim", "Denial Ctrl", "1st-Pass Res.", "Coding Acc.",
         "Prior-Auth", "Net Collect.", "Doc. Acc.", "Pt. Satisfaction",
+        "Clinical Qual.", "Portal Adopt.",
     ]
     provider_values = [
         m.cleanClaimRate, 100 - m.denialRate, m.firstPassResolutionRate, m.codingAccuracy,
         m.priorAuthApprovalRate, m.netCollectionRate, m.documentationAccuracy, m.patientSatisfactionScore,
+        m.clinicalQualityScore, m.patientPortalAdoptionRate,
     ]
     peer_values = [
         peer.cleanClaimRate, 100 - peer.denialRate, peer.firstPassResolutionRate, peer.codingAccuracy,
         peer.priorAuthApprovalRate, peer.netCollectionRate, peer.documentationAccuracy, peer.patientSatisfactionScore,
+        peer.clinicalQualityScore, peer.patientPortalAdoptionRate,
     ]
 
     drawing = Drawing(460, 210)

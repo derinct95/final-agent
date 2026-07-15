@@ -1,8 +1,9 @@
-import { AlertCircle, CalendarPlus, Download, Mail, RefreshCw } from "lucide-react";
+import { AlertCircle, CalendarPlus, Download, Mail, RefreshCw, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { RiskBadge, TrendBadge } from "../components/common/Badge";
+import { ADMIN_ROLE, useAuth } from "../context/AuthContext";
 import SlidePanel from "../components/common/SlidePanel";
 import StuckRiskBadge from "../components/common/StuckRiskBadge";
 import AppointmentBookingModal from "../components/communications/AppointmentBookingModal";
@@ -11,6 +12,7 @@ import ActionsTab from "../components/provider-detail/tabs/ActionsTab";
 import ClaimsHistoryTab from "../components/provider-detail/tabs/ClaimsHistoryTab";
 import MetricsTab from "../components/provider-detail/tabs/MetricsTab";
 import OverviewTab from "../components/provider-detail/tabs/OverviewTab";
+import RootCauseModal from "../components/provider-detail/RootCauseModal";
 import { selectPeriods, type PeriodSelection } from "../components/provider-detail/PeriodPicker";
 import { notifyProviderDataChanged } from "../utils/events";
 import { addRecentlyViewed } from "../utils/recentlyViewed";
@@ -30,6 +32,8 @@ export default function ProviderDetailPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { session } = useAuth();
+  const isAdmin = session?.role === ADMIN_ROLE;
 
   const [provider, setProvider] = useState<Provider | null>(null);
   const [insights, setInsights] = useState<Insight[]>([]);
@@ -44,6 +48,7 @@ export default function ProviderDetailPage() {
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [rootCauseOpen, setRootCauseOpen] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const tab = (searchParams.get("tab") as TabKey) || "overview";
@@ -141,15 +146,26 @@ export default function ProviderDetailPage() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              onClick={() => setEmailOpen(true)}
+              onClick={() => setRootCauseOpen(true)}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition"
+            >
+              <Search className="w-3.5 h-3.5" /> Explain Root Cause
+            </button>
+            <button
+              type="button"
+              onClick={() => setEmailOpen(true)}
+              disabled={!isAdmin}
+              title={isAdmin ? undefined : "Requires Practice Administrator access"}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               <Mail className="w-3.5 h-3.5" /> Email
             </button>
             <button
               type="button"
               onClick={() => setBookingOpen(true)}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition"
+              disabled={!isAdmin}
+              title={isAdmin ? undefined : "Requires Practice Administrator access"}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               <CalendarPlus className="w-3.5 h-3.5" /> Schedule
             </button>
@@ -249,6 +265,7 @@ export default function ProviderDetailPage() {
               providerId={provider.id}
               providerName={provider.name}
               onStatusChange={handleActionStatusChange}
+              isAdmin={isAdmin}
             />
           )}
 
@@ -265,6 +282,11 @@ export default function ProviderDetailPage() {
             providerIds={[provider.id]}
             providerNames={[provider.name]}
             defaultTopic="Performance review"
+          />
+          <RootCauseModal
+            providerId={rootCauseOpen ? provider.id : null}
+            providerName={provider.name}
+            onClose={() => setRootCauseOpen(false)}
           />
         </div>
       )}

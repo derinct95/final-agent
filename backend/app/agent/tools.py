@@ -18,15 +18,19 @@ def _text(s: str) -> dict[str, Any]:
 
 @tool(
     "search_providers",
-    "Search or look up providers by name, specialty, facility, risk level, or flagged status.",
+    "Search or look up providers by name, specialty, facility, risk level, flagged status, or "
+    "stuck-at-risk status. Do NOT put risk level or 'stuck' in the free-text query param -- it only "
+    "substring-matches name/specialty/facility. Use riskLevel for risk filtering and stuckAtRiskOnly for "
+    "'stuck at risk' questions. Leave query empty to list/filter across all providers.",
     {
         "type": "object",
         "properties": {
-            "query": {"type": "string", "description": "Free-text search across name/specialty/facility"},
+            "query": {"type": "string", "description": "Free-text substring match on name/specialty/facility ONLY -- leave empty when filtering by risk/stuck status instead"},
             "specialty": {"type": "string"},
             "facility": {"type": "string"},
-            "riskLevel": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+            "riskLevel": {"type": "string", "enum": ["low", "medium", "high", "critical"], "description": "Use this (not query) to filter by risk level"},
             "flaggedOnly": {"type": "boolean", "description": "Only providers flagged and not yet reviewed"},
+            "stuckAtRiskOnly": {"type": "boolean", "description": "Only providers at high/critical risk for 2+ consecutive quarters -- use this for any 'stuck at risk' question"},
             "limit": {"type": "integer"},
         },
     },
@@ -37,6 +41,7 @@ async def search_providers(args: dict[str, Any]) -> dict[str, Any]:
         results = repo.search_providers(
             db, query=args.get("query"), specialty=args.get("specialty"), facility=args.get("facility"),
             risk_level=args.get("riskLevel"), flagged_only=bool(args.get("flaggedOnly", False)),
+            stuck_at_risk_only=bool(args.get("stuckAtRiskOnly", False)),
             limit=int(args.get("limit", 20)),
         )
         lines = [
@@ -104,7 +109,10 @@ async def compare_providers(args: dict[str, Any]) -> dict[str, Any]:
         lines = [
             f"{p.name} ({p.id}): score={p.performanceScore} risk={p.riskLevel} trend={p.trend} "
             f"denialRate={p.metrics.denialRate}% netCollection={p.metrics.netCollectionRate}% "
-            f"daysInAR={p.metrics.daysInAR} stuckAtRiskQuarters={p.stuckAtRiskQuarters}"
+            f"daysInAR={p.metrics.daysInAR} stuckAtRiskQuarters={p.stuckAtRiskQuarters} "
+            f"clinicalQualityScore={p.metrics.clinicalQualityScore}% "
+            f"patientVisitsMonthly={p.metrics.patientVisitsMonthly} "
+            f"patientPortalAdoptionRate={p.metrics.patientPortalAdoptionRate}%"
             for p in providers
         ]
         return _text("\n".join(lines) or "No matching providers.")
@@ -200,11 +208,118 @@ async def schedule_appointment(args: dict[str, Any]) -> dict[str, Any]:
         db.close()
 
 
+@tool(
+    "record_insights",
+    "Record the structured list of AI-generated proactive insights once your investigation is complete. Call exactly once.",
+    {
+        "type": "object",
+        "properties": {
+            "insights": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "providerId": {"type": "string"},
+                        "providerName": {"type": "string"},
+                        "severity": {"type": "string", "enum": ["critical", "high", "medium", "info"]},
+                        "title": {"type": "string"},
+                        "narrative": {"type": "string"},
+                        "recommendedAction": {"type": "string"},
+                        "confidenceScore": {"type": "number"},
+                        "estimatedFinancialImpact": {"type": "number"},
+                    },
+                    "required": [
+                        "providerId", "providerName", "severity", "title", "narrative",
+                        "recommendedAction", "confidenceScore", "estimatedFinancialImpact",
+                    ],
+                },
+            }
+        },
+        "required": ["insights"],
+    },
+)
+async def record_insights(args: dict[str, Any]) -> dict[str, Any]:
+    return _text("Recorded.")
+
+
+@tool(
+    "record_practice_review",
+    "Record the structured practice-wide review (key findings + priority actions) once your investigation is complete. Call exactly once.",
+    {
+        "type": "object",
+        "properties": {
+            "keyFindings": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "narrative": {"type": "string"},
+                        "severity": {"type": "string", "enum": ["critical", "high", "medium", "info"]},
+                    },
+                    "required": ["title", "narrative", "severity"],
+                },
+            },
+            "priorityActions": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {"type": "string"},
+                        "description": {"type": "string"},
+                        "priority": {"type": "string", "enum": ["low", "medium", "high"]},
+                    },
+                    "required": ["title", "description", "priority"],
+                },
+            },
+        },
+        "required": ["keyFindings", "priorityActions"],
+    },
+)
+async def record_practice_review(args: dict[str, Any]) -> dict[str, Any]:
+    return _text("Recorded.")
+
+
+@tool(
+    "record_root_cause",
+    "Record the structured root-cause analysis for a specific provider once your investigation is complete. Call exactly once.",
+    {
+        "type": "object",
+        "properties": {
+            "narrative": {"type": "string"},
+            "contributingFactors": {"type": "array", "items": {"type": "string"}},
+            "citedPolicies": {"type": "array", "items": {"type": "string"}},
+            "recommendedRemediation": {"type": "array", "items": {"type": "string"}},
+        },
+        "required": ["narrative", "contributingFactors", "citedPolicies", "recommendedRemediation"],
+    },
+)
+async def record_root_cause(args: dict[str, Any]) -> dict[str, Any]:
+    return _text("Recorded.")
+
+
+@tool(
+    "record_email_draft",
+    "Record a drafted email subject and body once ready. Call exactly once.",
+    {
+        "type": "object",
+        "properties": {
+            "subject": {"type": "string"},
+            "body": {"type": "string"},
+        },
+        "required": ["subject", "body"],
+    },
+)
+async def record_email_draft(args: dict[str, Any]) -> dict[str, Any]:
+    return _text("Recorded.")
+
+
 clearview_server = create_sdk_mcp_server(
     name=MCP_SERVER_NAME,
     version="1.0.0",
     tools=[
         search_providers, get_provider_claims, compare_providers, summarize_department,
         search_policy_knowledge, send_email, schedule_appointment,
+        record_insights, record_practice_review, record_root_cause, record_email_draft,
     ],
 )

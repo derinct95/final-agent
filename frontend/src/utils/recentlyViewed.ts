@@ -11,13 +11,25 @@ export interface RecentlyViewedEntry {
   viewedAt: number;
 }
 
-const STORAGE_KEY = "ppd_recently_viewed";
+const SESSION_STORAGE_KEY = "ppd_session";
+const STORAGE_PREFIX = "ppd_recently_viewed";
 const MAX_ENTRIES = 15;
 const EVENT_NAME = "clearview:recently-viewed-changed";
 
+function getStorageKey(): string {
+  try {
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return STORAGE_PREFIX;
+    const session = JSON.parse(raw) as { email?: string };
+    return session.email ? `${STORAGE_PREFIX}:${session.email}` : STORAGE_PREFIX;
+  } catch {
+    return STORAGE_PREFIX;
+  }
+}
+
 export function getRecentlyViewed(): RecentlyViewedEntry[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey());
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -29,7 +41,7 @@ export function getRecentlyViewed(): RecentlyViewedEntry[] {
 export function addRecentlyViewed(entry: Omit<RecentlyViewedEntry, "viewedAt">): void {
   const existing = getRecentlyViewed().filter((e) => e.id !== entry.id);
   const next = [{ ...entry, viewedAt: Date.now() }, ...existing].slice(0, MAX_ENTRIES);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  localStorage.setItem(getStorageKey(), JSON.stringify(next));
   window.dispatchEvent(new Event(EVENT_NAME));
 }
 

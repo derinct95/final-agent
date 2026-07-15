@@ -1,0 +1,29 @@
+id,name,specialty,facility,npi,performanceScore,riskLevel,trend,flagged,reviewed,flagReason,stuckAtRiskQuarters,cleanClaimRate,denialRate,daysInAR,firstPassResolutionRate,codingAccuracy,priorAuthApprovalRate,netCollectionRate,avgReimbursementPerClaim,claimsVolumeMonthly,documentationAccuracy,patientSatisfactionScore,clinicalQualityScore,patientVisitsMonthly,patientPortalAdoptionRate
+prov-007,Dr. Wei Hassan,Urology,Meridian Family Practice,4296344958,95.9,low,flat,False,False,,0,96.4,3.0,30.9,97.7,98.9,95.8,97.4,385.87,546.0,97.9,93.7,94.9,395.0,91.2
+dent-008,Dr. David Silva,Cosmetic Dentistry,Clearview Family Dental — Lakeside,2513618961,93.4,low,up,False,False,,0,93.5,6.0,27.6,95.8,95.2,95.0,95.9,221.2,445.0,94.0,91.9,95.1,329.0,89.0
+prov-003,Dr. Nia Novak,Nephrology,Meridian Family Practice,5382302465,92.9,low,up,False,False,,0,95.9,4.6,30.4,93.5,95.6,93.2,98.5,191.97,595.0,95.4,92.8,96.4,305.0,85.8
+prov-011,Dr. Michael Kim,ENT,Riverside Medical Center,9478813347,92.8,low,flat,False,False,,0,93.9,5.5,34.4,93.5,94.8,93.0,98.6,366.92,385.0,95.1,90.3,92.9,136.0,85.7
+prov-012,Dr. Sofia Okafor,Psychiatry,Meridian Family Practice,2748380110,91.7,low,flat,False,False,,0,95.6,5.3,33.0,93.8,93.7,93.8,97.8,379.78,429.0,94.8,95.8,95.9,283.0,86.4
+dent-007,Dr. Wei Garcia,Oral & Maxillofacial Surgery,Clearview Family Dental — Lakeside,9434259650,90.5,low,flat,False,False,,0,91.9,7.3,33.4,94.1,93.7,95.6,95.1,325.48,169.0,96.4,89.4,91.9,241.0,83.4
+dent-001,Dr. Priya Brooks,Orthodontics,Clearview Family Dental — Riverside,8807650509,87.8,low,flat,False,False,,0,92.3,8.1,32.4,90.8,92.1,91.5,93.3,319.71,538.0,93.3,90.6,90.7,368.0,85.1
+prov-002,Dr. James Chen,Dermatology,Riverside Medical Center,3952295757,84.9,medium,flat,False,False,,0,92.7,8.0,38.0,89.1,91.7,91.3,94.4,417.55,283.0,94.9,89.7,90.2,324.0,83.2
+dent-003,Dr. Nia Larsen,General Dentistry,Clearview Family Dental — Riverside,7990142324,84.6,medium,up,False,False,,0,92.3,7.6,37.8,90.3,93.8,91.2,92.3,148.79,579.0,90.4,90.4,91.4,254.0,83.6
+dent-006,Dr. Susan Reyes,Pediatric Dentistry,Clearview Family Dental — Lakeside,1562021516,83.5,medium,up,False,False,,0,88.5,10.6,41.8,86.2,94.1,89.3,93.9,129.5,366.0,90.8,87.4,88.9,256.0,77.4
+prov-013,Dr. Daniel Reyes,Orthopedics,Riverside Medical Center,5363851896,82.1,medium,down,False,False,,0,91.9,8.7,44.9,89.5,90.2,89.2,93.9,252.72,390.0,93.2,87.5,91.2,391.0,82.5
+prov-014,Dr. Karen Garcia,Endocrinology,Cedar Grove Medical Associates,4881189856,80.5,medium,flat,False,False,,0,90.1,11.8,43.2,88.8,92.2,88.2,91.0,121.14,160.0,88.8,85.9,90.6,205.0,79.4
+prov-009,Dr. Carlos Johnson,Neurology,Lakeside Health Clinic,9741659629,79.2,medium,up,False,False,,0,87.1,11.3,47.2,85.7,92.2,85.8,90.3,348.91,169.0,88.1,87.2,89.5,285.0,78.3
+prov-019,Dr. Fatima Patel,Cardiology,Cedar Grove Medical Associates,6484093053,79.1,medium,flat,False,False,,0,88.0,10.7,45.6,87.5,90.5,87.8,90.9,293.14,396.0,88.0,83.5,90.0,453.0,75.8
+prov-016,Dr. Maria Whitfield,OB/GYN,Summit Regional Hospital,2862148968,79.0,medium,flat,False,False,,0,89.9,11.1,41.1,83.6,91.5,88.7,91.3,117.63,281.0,89.8,83.8,86.4,387.0,78.1
+prov-004,Dr. Robert Nakamura,General Surgery,Riverside Medical Center,4184611760,76.1,medium,up,False,False,,0,88.8,13.1,47.5,84.8,88.7,84.7,88.9,217.56,529.0,88.0,85.7,86.9,275.0,76.7
+prov-005,Dr. Emily Anderson,Radiology,Meridian Family Practice,3695232998,73.4,medium,flat,False,False,,0,85.4,14.4,52.1,84.0,89.5,85.6,91.9,215.12,571.0,89.8,79.3,84.6,234.0,73.9
+prov-001,Dr. Priya Alvarez,Emergency Medicine,Lakeside Health Clinic,2051454923,72.7,medium,flat,False,False,,0,83.0,13.3,47.5,81.0,86.6,84.5,89.9,186.34,593.0,88.6,81.3,86.5,320.0,74.6
+prov-008,Dr. David Brooks,Anesthesiology,Meridian Family Practice,1386903346,72.6,medium,flat,False,False,,0,87.0,14.1,51.3,82.9,88.2,82.5,88.1,238.06,545.0,88.9,79.3,85.8,474.0,68.3
+dent-005,Dr. Emily Okafor,Prosthodontics,Clearview Family Dental — Riverside,4142865661,71.0,medium,down,False,False,,0,85.5,15.8,56.0,83.0,88.2,83.7,87.7,203.33,179.0,85.0,77.5,86.6,127.0,67.1
+prov-017,Dr. William Smith,Oncology,Cedar Grove Medical Associates,5176412695,69.3,high,flat,True,False,Denial rate elevated at 16.0% (peer avg 11.4%),8,85.1,16.0,53.6,80.1,84.9,82.8,87.2,405.37,447.0,84.7,78.3,82.2,438.0,71.1
+dent-002,Dr. James Johnson,Endodontics,Clearview Family Dental — Lakeside,8911097892,68.6,high,down,True,False,Denial rate elevated at 14.1% (peer avg 12.4%),1,80.7,14.1,50.9,82.1,86.8,84.8,89.5,249.27,270.0,84.1,81.0,81.6,341.0,65.7
+prov-015,Dr. Grace Silva,Family Medicine,Cedar Grove Medical Associates,8268916871,55.2,high,flat,True,True,Denial rate elevated at 21.8% (peer avg 11.5%),8,77.3,21.8,70.0,70.0,81.4,78.3,83.3,191.0,506.0,80.0,68.7,78.6,476.0,60.0
+dent-004,Dr. Robert Kim,Periodontics,Clearview Family Dental — Riverside,3241147073,55.1,high,up,True,True,Denial rate elevated at 21.3% (peer avg 9.7%),8,75.3,21.3,68.3,74.7,80.8,73.7,83.9,115.71,566.0,77.8,70.6,77.1,292.0,57.1
+prov-006,Dr. Susan Cohen,Pulmonology,Summit Regional Hospital,4402160254,53.2,critical,flat,True,True,Denial rate elevated at 23.1% (peer avg 11.4%),8,75.1,23.1,66.1,72.5,79.1,74.8,82.9,394.66,501.0,80.3,70.5,74.9,413.0,52.5
+prov-020,Dr. Linda Nguyen,Internal Medicine,Meridian Family Practice,9795904190,52.5,critical,down,True,False,Denial rate elevated at 21.6% (peer avg 12.7%),5,76.2,21.6,69.2,70.3,78.5,75.0,82.2,388.07,580.0,79.8,68.1,74.7,242.0,57.4
+prov-010,Dr. Ahmed Larsen,Gastroenterology,Cedar Grove Medical Associates,1172146239,43.6,critical,flat,True,False,Denial rate elevated at 24.5% (peer avg 10.7%),8,72.6,24.5,81.6,63.4,75.6,72.4,80.8,370.18,364.0,74.9,61.1,72.9,159.0,49.6
+prov-018,Dr. Thomas Rossi,Pediatrics,Meridian Family Practice,7010091529,40.5,critical,flat,True,True,Denial rate elevated at 27.5% (peer avg 12.9%),8,68.4,27.5,84.8,63.0,74.1,69.3,79.6,312.2,273.0,72.0,58.0,70.1,167.0,43.0

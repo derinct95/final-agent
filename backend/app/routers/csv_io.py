@@ -16,6 +16,7 @@ EXPORT_COLUMNS = [
     "daysInAR", "firstPassResolutionRate", "codingAccuracy", "priorAuthApprovalRate",
     "netCollectionRate", "avgReimbursementPerClaim", "claimsVolumeMonthly",
     "documentationAccuracy", "patientSatisfactionScore",
+    "clinicalQualityScore", "patientVisitsMonthly", "patientPortalAdoptionRate",
 ]
 
 
@@ -43,6 +44,9 @@ def export_csv(scope: str = "all", db: Session = Depends(get_db)):
             "claimsVolumeMonthly": p.metrics.claimsVolumeMonthly,
             "documentationAccuracy": p.metrics.documentationAccuracy,
             "patientSatisfactionScore": p.metrics.patientSatisfactionScore,
+            "clinicalQualityScore": p.metrics.clinicalQualityScore,
+            "patientVisitsMonthly": p.metrics.patientVisitsMonthly,
+            "patientPortalAdoptionRate": p.metrics.patientPortalAdoptionRate,
         })
 
     df = pd.DataFrame(rows, columns=EXPORT_COLUMNS)

@@ -11,6 +11,7 @@ import StuckRiskBadge from "../components/common/StuckRiskBadge";
 import Value from "../components/common/Value";
 import AppointmentBookingModal from "../components/communications/AppointmentBookingModal";
 import EmailComposeModal from "../components/communications/EmailComposeModal";
+import { ADMIN_ROLE, useAuth } from "../context/AuthContext";
 import type { Provider } from "../types";
 
 const METRIC_ROWS: { key: keyof Provider["metrics"]; label: string; type: "percent" | "number" | "currency" }[] = [
@@ -24,6 +25,9 @@ const METRIC_ROWS: { key: keyof Provider["metrics"]; label: string; type: "perce
   { key: "avgReimbursementPerClaim", label: "Avg Reimbursement / Claim", type: "currency" },
   { key: "documentationAccuracy", label: "Documentation Accuracy", type: "percent" },
   { key: "patientSatisfactionScore", label: "Patient Satisfaction", type: "percent" },
+  { key: "clinicalQualityScore", label: "Clinical Quality Score", type: "percent" },
+  { key: "patientVisitsMonthly", label: "Patient Visits / Month", type: "number" },
+  { key: "patientPortalAdoptionRate", label: "Patient Portal Adoption", type: "percent" },
 ];
 
 export default function CompareView() {
@@ -36,6 +40,8 @@ export default function CompareView() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const { session } = useAuth();
+  const isAdmin = session?.role === ADMIN_ROLE;
 
   useEffect(() => {
     setLoading(true);
@@ -72,14 +78,18 @@ export default function CompareView() {
             <button
               type="button"
               onClick={() => setEmailOpen(true)}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition"
+              disabled={!isAdmin}
+              title={isAdmin ? undefined : "Requires Practice Administrator access"}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               <Mail className="w-3.5 h-3.5" /> Email Group
             </button>
             <button
               type="button"
               onClick={() => setBookingOpen(true)}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition"
+              disabled={!isAdmin}
+              title={isAdmin ? undefined : "Requires Practice Administrator access"}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
             >
               <CalendarPlus className="w-3.5 h-3.5" /> Schedule Group Meeting
             </button>
