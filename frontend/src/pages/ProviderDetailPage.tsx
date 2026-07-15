@@ -1,5 +1,6 @@
 import { AlertCircle, CalendarPlus, Download, Mail, RefreshCw, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { RiskBadge, TrendBadge } from "../components/common/Badge";
@@ -46,6 +47,8 @@ export default function ProviderDetailPage() {
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
+  const [downloadMenuPos, setDownloadMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const downloadBtnRef = useRef<HTMLButtonElement>(null);
   const [emailOpen, setEmailOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [rootCauseOpen, setRootCauseOpen] = useState(false);
@@ -174,33 +177,48 @@ export default function ProviderDetailPage() {
             </button>
             <div className="relative">
               <button
+                ref={downloadBtnRef}
                 type="button"
-                onClick={() => setDownloadMenuOpen((v) => !v)}
+                onClick={() => {
+                  if (!downloadMenuOpen && downloadBtnRef.current) {
+                    const r = downloadBtnRef.current.getBoundingClientRect();
+                    setDownloadMenuPos({ top: r.bottom + 8, right: window.innerWidth - r.right });
+                  }
+                  setDownloadMenuOpen((v) => !v);
+                }}
                 disabled={downloading}
                 className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-line-axis text-ink-secondary hover:bg-plane transition disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" /> {downloading ? "Preparing..." : "Download Report"}
               </button>
-              {downloadMenuOpen && (
-                <div className="absolute right-0 mt-2 w-60 bg-surface border border-line-grid rounded-xl shadow-lg p-2 z-50">
-                  <button
-                    type="button"
-                    onClick={() => handleDownload("full")}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-plane transition"
-                  >
-                    <span className="block text-sm font-medium text-ink-primary">Full Provider Report</span>
-                    <span className="block text-xs text-ink-muted">All available history</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDownload("custom")}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-plane transition"
-                  >
-                    <span className="block text-sm font-medium text-ink-primary">Custom Report</span>
-                    <span className="block text-xs text-ink-muted">Matches your selected {granularity} view</span>
-                  </button>
-                </div>
-              )}
+              {downloadMenuOpen && downloadMenuPos &&
+                createPortal(
+                  <>
+                    <div className="fixed inset-0 z-[9998]" onClick={() => setDownloadMenuOpen(false)} />
+                    <div
+                      className="fixed w-60 bg-surface border border-line-grid rounded-xl shadow-lg p-2 z-[9999]"
+                      style={{ top: downloadMenuPos.top, right: downloadMenuPos.right }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => handleDownload("full")}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-plane transition"
+                      >
+                        <span className="block text-sm font-medium text-ink-primary">Full Provider Report</span>
+                        <span className="block text-xs text-ink-muted">All available history</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDownload("custom")}
+                        className="w-full text-left px-3 py-2 rounded-lg hover:bg-plane transition"
+                      >
+                        <span className="block text-sm font-medium text-ink-primary">Custom Report</span>
+                        <span className="block text-xs text-ink-muted">Matches your selected {granularity} view</span>
+                      </button>
+                    </div>
+                  </>,
+                  document.body
+                )}
             </div>
           </div>
         )
