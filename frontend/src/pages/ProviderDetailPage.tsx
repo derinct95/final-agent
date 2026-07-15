@@ -57,10 +57,9 @@ export default function ProviderDetailPage() {
     if (!id) return;
     setLoading(true);
     setLoadError(null);
-    Promise.all([api.getProvider(id), api.getInsights(), api.getProviderQuarterlyHistory(id)])
-      .then(([p, i, qh]) => {
+    Promise.all([api.getProvider(id), api.getProviderQuarterlyHistory(id)])
+      .then(([p, qh]) => {
         setProvider(p);
-        setInsights(i);
         setQuarterlyHistory(qh);
         addRecentlyViewed({
           id: p.id, name: p.name, specialty: p.specialty,
@@ -69,6 +68,10 @@ export default function ProviderDetailPage() {
       })
       .catch((err) => setLoadError(err instanceof Error ? err.message : "Failed to load this provider."))
       .finally(() => setLoading(false));
+    // Agent-driven and can be slow -- must not block the rest of the panel
+    // (score, metrics, claims) behind it; the Overview tab's insights card
+    // just updates whenever this resolves.
+    api.getInsights().then(setInsights).catch(() => {});
   }
 
   useEffect(loadProvider, [id]);

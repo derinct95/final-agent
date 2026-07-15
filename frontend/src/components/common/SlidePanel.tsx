@@ -79,7 +79,7 @@ export default function SlidePanel({
         <div className="min-h-16 shrink-0 flex items-center gap-3 px-5 py-2.5 border-b border-line-grid">
           <div className="flex-1 min-w-[140px]">{title}</div>
           {headerActions && (
-            <div className="flex items-center gap-2 min-w-0 overflow-x-auto">{headerActions}</div>
+            <div className="flex items-center gap-2 min-w-0 overflow-x-auto overflow-y-visible py-1">{headerActions}</div>
           )}
           <div className="flex items-center gap-1 shrink-0">
             <button
