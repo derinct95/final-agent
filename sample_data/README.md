@@ -8,7 +8,7 @@
 | `import_sample_new_providers.csv` | A minimal 2-row CSV (name/specialty/facility/NPI, one row missing NPI) used to demo the Data Import wizard | Hand-authored to showcase auto-backfill of missing identity fields on import |
 | `sample_provider_report.pdf` / `.csv` | A single provider's full performance report | `GET /api/reports/providers/{id}/report` — free, deterministic |
 | `sample_compare_report.pdf` / `.csv` | A 3-provider side-by-side comparison report | `GET /api/reports/compare?providerIds=...` — free, deterministic |
-| `screenshots/` | Nine screenshots of the running application: dashboard with Agent Refresh, root-cause explainer, chat markdown rendering, all-6-category metrics tab, metric detail popup, compare mode, import preview, import confirmed (22 providers after import), and the Clinical Analyst RBAC view | Captured live from the running app, several during the real end-to-end demo recording |
+| `screenshots/` | 13 screenshots from the full 19-step end-to-end demo walkthrough (see `DEMO_SCRIPT.md`): dashboard, AI Insights, compare mode, provider overview, metric popup, claims history, root-cause explainer, chat widget (markdown + tool chips), practice review, email draft, import preview, import confirmed, and the Clinical Analyst RBAC view | Captured live from the running app during/after the real end-to-end agent-powered demo recording (`Clearview_Demo_Walkthrough.mp4`) |
 | `run_log.txt` | A timestamped log of a real verification pass against the running backend — health check, core data endpoints, export endpoints, RBAC enforcement (403s confirmed), frontend reachability | `curl` smoke test, see `DEMO_SCRIPT.md` for the full walkthrough this complements |
 
 ## Regenerating this pack
