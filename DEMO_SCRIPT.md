@@ -1,6 +1,6 @@
 # Demo Script — Clearview Provider Performance Agent
 
-This is the walkthrough recorded in `Clearview_Demo_Walkthrough.mp4`. Each step is marked **FREE** (deterministic, no LLM call) or **AGENT** (a real Claude Sonnet 5 call via the Agent SDK — costs a small amount of API credit). The whole demo makes exactly **5 real agent calls** total, by design, to stay budget-conscious.
+This is the walkthrough recorded in `Clearview_Demo_Walkthrough.webm`. Each step is marked **FREE** (deterministic, no LLM call) or **AGENT** (a real Claude Sonnet 5 call via the Agent SDK — costs a small amount of API credit). The whole demo makes exactly **5 real agent calls** total, by design, to stay budget-conscious.
 
 | # | Step | Cost | What it shows |
 |---|---|---|---|

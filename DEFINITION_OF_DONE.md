@@ -56,6 +56,6 @@ This maps the assigned use case's requirements to what is actually implemented, 
 | README run document | `README.md` — setup, prerequisites, commands, runtime/cost expectations, limitations, troubleshooting |
 | Definition-of-Done evidence | This file |
 | Sample data pack (synthetic only) | `sample_data/providers_sample.csv`, `sample_data/README.md` |
-| Demo script / video | `DEMO_SCRIPT.md` + `Clearview_Demo_Walkthrough.mp4` |
+| Demo script / video | `DEMO_SCRIPT.md` + `Clearview_Demo_Walkthrough.webm` |
 | Output artifacts (screenshots/logs proving completion) | `sample_data/screenshots/`, `sample_data/run_log.txt` |
 | Compliance note | `COMPLIANCE.md` |

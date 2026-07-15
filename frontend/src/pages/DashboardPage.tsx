@@ -49,12 +49,17 @@ export default function DashboardPage({ practiceType = "medical" }: DashboardPag
     }
   }, [practiceType]);
 
+  // Insights is agent-driven and can take much longer than the plain data
+  // load -- it has its own independent loading skeleton (AiInsightsPanel), so
+  // it must NOT gate the rest of the dashboard (KPIs, table, guided tour)
+  // behind its completion.
   useEffect(() => {
     setLoading(true);
     setLoadError(null);
-    Promise.all([loadProviders(), loadInsights()])
+    loadProviders()
       .catch((err) => setLoadError(err instanceof Error ? err.message : "Failed to load the dashboard."))
       .finally(() => setLoading(false));
+    loadInsights();
   }, [loadProviders, loadInsights]);
 
   useEffect(() => onProviderDataChanged(() => { loadProviders(); }), [loadProviders]);
@@ -62,9 +67,10 @@ export default function DashboardPage({ practiceType = "medical" }: DashboardPag
   function retryLoad() {
     setLoading(true);
     setLoadError(null);
-    Promise.all([loadProviders(), loadInsights()])
+    loadProviders()
       .catch((err) => setLoadError(err instanceof Error ? err.message : "Failed to load the dashboard."))
       .finally(() => setLoading(false));
+    loadInsights();
   }
 
   async function handleMarkReviewed(id: string) {
